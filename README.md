@@ -54,7 +54,7 @@ If you're not familiar with Composer, please see <http://getcomposer.org/>.
 ```json
 {
     "require": {
-        "chrisboulton/php-resque": "1.2.x"
+        "ho-nl-fork/php-resque": "1.2.x"
     }
 }
 ```

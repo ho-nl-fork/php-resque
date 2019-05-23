@@ -11,6 +11,8 @@ declare(ticks = 1);
  */
 class Resque_Worker
 {
+    const MAX_MEMORY_LIMIT_USAGE_PERCENTAGE = 80;
+
 	/**
 	* @var LoggerInterface Logging object that impliments the PSR-3 LoggerInterface
 	*/
@@ -148,6 +150,19 @@ class Resque_Worker
 		$this->startup();
 
 		while(true) {
+           $memoryUsage = $this->getMemoryUsagePercentage();
+            if ($memoryUsage >= self::MAX_MEMORY_LIMIT_USAGE_PERCENTAGE) {
+                file_put_contents(
+                    getcwd() . '/var/log/test.log',
+                    sprintf('%s: memory usage is %s%%, shutting down' . PHP_EOL,
+                        date('Y-m-d H:i:s'),
+                        number_format($memoryUsage, 2)
+                    ),
+                    FILE_APPEND);
+
+                $this->shutdown();
+            }
+
 			if($this->shutdown) {
 				break;
 			}
@@ -559,4 +574,58 @@ class Resque_Worker
 	{
 		$this->logger = $logger;
 	}
+
+    /**
+     * @return float|int
+     */
+	public function getMemoryUsagePercentage()
+    {
+        $memoryLimit = $this->getMemoryLimit();
+        $memoryUsage = memory_get_usage(true);
+        $percentage = $memoryUsage * 100 / $memoryLimit;
+
+        file_put_contents(
+            getcwd() . '/var/log/test.log',
+            sprintf('%s: memory usage: %s%% (%sm / %sm)' . PHP_EOL,
+                date('Y-m-d H:i:s'),
+                number_format($percentage, 2),
+                $memoryUsage / 1024 / 1024,
+                $memoryLimit / 1024 / 1024
+            ),
+            FILE_APPEND);
+
+        return $percentage;
+    }
+
+    /**
+     * Get memory limit in bytes
+     *
+     * @return int
+     */
+    public function getMemoryLimit(): int
+    {
+        $limitString = ini_get('memory_limit');
+        $unit = strtolower(mb_substr($limitString, -1 ));
+        $bytes = intval(mb_substr($limitString, 0, -1), 10);
+
+        switch ($unit)
+        {
+            case 'k':
+                $bytes *= 1024;
+                break 1;
+
+            case 'm':
+                $bytes *= 1048576;
+                break 1;
+
+            case 'g':
+                $bytes *= 1073741824;
+                break 1;
+
+            default:
+                break 1;
+        }
+
+        return $bytes;
+    }
 }
