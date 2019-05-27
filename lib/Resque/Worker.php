@@ -153,7 +153,7 @@ class Resque_Worker
            $memoryUsage = $this->getMemoryUsagePercentage();
             if ($memoryUsage >= self::MAX_MEMORY_LIMIT_USAGE_PERCENTAGE) {
                 file_put_contents(
-                    getcwd() . '/var/log/test.log',
+                    '/home/oppo/deployment/current/var/log/test.log',
                     sprintf('%s: memory usage is %s%%, shutting down' . PHP_EOL,
                         date('Y-m-d H:i:s'),
                         number_format($memoryUsage, 2)
@@ -585,7 +585,7 @@ class Resque_Worker
         $percentage = $memoryUsage * 100 / $memoryLimit;
 
         file_put_contents(
-            getcwd() . '/var/log/test.log',
+            '/home/oppo/deployment/current/var/log/test.log',
             sprintf('%s: memory usage: %s%% (%sm / %sm)' . PHP_EOL,
                 date('Y-m-d H:i:s'),
                 number_format($percentage, 2),
