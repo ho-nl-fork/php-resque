@@ -73,6 +73,9 @@ if (!isset($logger) || !is_object($logger)) {
     $logger = new Resque_Log($logLevel);
 }
 
+$logger->notice('Using REDIS_BACKEND {redis_backend}', array('redis_backend' => $REDIS_BACKEND));
+$logger->notice('Using REDIS_BACKEND_DB {redis_backend_db}', array('redis_backend_db' => $REDIS_BACKEND_DB));
+
 $BLOCKING = getenv('BLOCKING') !== FALSE;
 
 $interval = 5;
